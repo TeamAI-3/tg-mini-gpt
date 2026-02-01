@@ -1,3 +1,4 @@
+document.body.insertAdjacentHTML("afterbegin", "<div style='padding:8px;border:1px solid #ccc;margin-bottom:8px;'>JS LOADED ✅</div>");
 const tg = window.Telegram?.WebApp;
 const chat = document.getElementById("chat");
 const input = document.getElementById("msg");
