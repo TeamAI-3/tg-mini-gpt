@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>MiniGPT</title>
+</head>
+<body style="font-family: Arial, sans-serif;">
+  <div id="top"></div>
+
+  <div id="chat" style="height:60vh; overflow:auto; border:1px solid #ccc; padding:8px;"></div>
+
+  <div style="display:flex; gap:8px; margin-top:8px;">
+    <input id="msg" style="flex:1;" placeholder="Напиши сообщение..."/>
+    <button id="send">Send</button>
+  </div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <script>
+    (function () {
+      // ===== helpers =====
+      function banner(text, bg, border) {
+        var top = document.getElementById("top");
+        var div = document.createElement("div");
+        div.style.padding = "10px";
+        div.style.marginBottom = "8px";
+        div.style.background = bg;
+        div.style.border = "1px solid " + border;
+        div.innerHTML = text;
+        top.insertBefore(div, top.firstChild);
+      }
+
+      function line(who, text) {
+        var chat = document.getElementById("chat");
+        var p = document.createElement("p");
+        p.style.margin = "6px 0";
+        p.textContent = who + ": " + text;
+        chat.appendChild(p);
+        chat.scrollTop = chat.scrollHeight;
+      }
+
+      window.onerror = function (msg, src, lineNo, colNo) {
+        banner(
+          "JS ERROR ❌<br>" + String(msg) + "<br>" + String(src  "") + ":" + (lineNo  "") + ":" + (colNo  ""),
+          "#ffecec",
+          "#ff7a7a"
+        );
+      };
+
+      banner("MINIAPP JS START ✅", "#eaffea", "#7ad67a");
+
+      // ===== DOM =====
+      var input = document.getElementById("msg");
+      var send = document.getElementById("send");
+
+      // ===== Telegram =====
+      var tg = null;
+      if (window.Telegram && window.Telegram.WebApp) {
+        tg = window.Telegram.WebApp;
+        try {
+          tg.ready();
+          tg.expand();
+          line("system", "Telegram WebApp найден ✅");
+        } catch (e) {
+          line("system", "Telegram WebApp есть, но ошибка: " + e.message);
+        }
+      } else {
+        line("system", "Открыто не в Telegram (это ок для теста).");
+      }
+
+      // ===== Backend =====
+      var BACKEND_URL = "https://tg-mini-gpt.onrender.com";
+
+      function setEnabled(v) {
+        send.disabled = !v;
+        input.disabled = !v;
+        send.style.opacity = v ? "1" : "0.6";
+      }
+
+      function postChat(text, cbOk, cbErr) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", BACKEND_URL + "/chat", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState !== 4) return;
+
+          var body = null;
+          try { body = JSON.parse(xhr.responseText); } catch (e) {}
+
+          if (xhr.status >= 200 && xhr.status < 300) {
+            cbOk(body && body.answer ? body.answer : "");
+          } else {
+            var msg = (body && body.detail) ? body.detail : ("HTTP " + xhr.status);
+            cbErr(msg);
+          }
+        };
+
+        var initData = tg ? (tg.initData  "") : "";
+        xhr.send(JSON.stringify({ initData: initData, text: text }));
+      }
+
+      function onSend() {
+        var text = (input.value || "").trim();
+        if (!text) return;
+
+        line("you", text);
+        input.value = "";
+        setEnabled(false);
+
+        postChat(
+          text,
+          function (answer) {
+            line("gpt", answer);
+            setEnabled(true);
+            input.focus();
+          },
+          function (err) {
+            line("system", "Ошибка: " + err);
+            setEnabled(true);
+            input.focus();
+          }
+        );
+      }
+
+      // click + touch (Telegram WebView)
+      send.addEventListener("click", onSend);
+      send.addEventListener("touchend", function (e) { e.preventDefault(); onSend(); });
+
+      // Enter
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") onSend();
+      });
+
+
+      line("system", "Готово. Пиши сообщение 👇");
+    })();
+  </script>
+</body>
+</html>
