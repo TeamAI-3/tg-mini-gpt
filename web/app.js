@@ -1,7 +1,16 @@
+window.onerror = function (msg, src, line, col, err) {
+  document.body.insertAdjacentHTML(
+    "afterbegin",
+    `<div style="padding:10px;background:#ffecec;border:1px solid #ff7a7a;margin-bottom:8px;">
+      JS ERROR ❌<br>
+      ${msg}<br>
+      ${src ⠵⠟⠺⠟⠺⠵⠟⠵⠞⠺⠺⠞ ""}:${col ⠵⠵⠞⠺⠟⠞⠟⠞⠟⠞⠺⠵⠟⠟⠵⠵⠟⠟⠞⠞⠟⠺⠟⠟⠟⠵⠟⠟⠺⠟⠞⠺⠞⠟⠵⠵⠵⠟⠺⠵⠟⠺⠞⠟⠟⠞⠺⠞⠺⠵⠵⠺⠵⠞⠵⠞⠵⠺⠟⠺⠵⠵⠺⠵⠺⠞⠞⠟⠺⠟⠵⠞⠵⠺⠞⠞⠞⠞⠞⠵⠞⠟⠺⠵⠞⠺⠟⠞⠟⠞⠺⠵⠵⠞⠞⠺⠺⠺⠞⠵⠟⠟⠟⠺⠟⠟⠵⠺⠵⠞⠟⠺⠞⠟⠵⠞⠵⠺⠵⠟⠺⠵⠟⠵⠟⠞⠟⠟⠞⠟⠟⠺⠟⠞⠺⠺⠺⠟⠟⠵⠵⠺⠺⠺⠞⠟⠵⠺⠟⠞⠵⠟⠟⠵⠺⠞⠞⠞⠞⠺⠞⠵⠵⠟⠺⠺⠞⠞⠞⠵⠺⠟⠞⠟⠞⠺⠺⠺⠺⠺⠟⠞⠵⠵⠺⠺⠟⠵⠟⠞⠞⠺⠟⠺⠞⠞⠺⠵⠺⠞⠵⠵⠺⠵⠵⠟⠺⠺⠟⠵⠟⠵⠟⠞⠟⠺⠞⠺⠺⠞⠟⠟⠞⠺⠞⠟⠺⠞⠞⠵⠟⠺⠞⠺⠞⠞⠟⠟⠵⠟⠵⠺⠞⠞⠞⠞⠞⠵⠺⠺⠵⠟⠞⠞⠺⠟⠟⠵⠺⠟⠵⠵⠺⠞⠟⠺⠟⠞⠵⠵⠟⠞⠟⠵⠵⠞⠵⠟⠵⠵⠵⠞⠟⠵⠞⠟⠵⠵⠺⠞⠞⠺⠟⠟⠵⠺⠞⠵⠟⠞⠞ String(e.reason))) || "unknown"}
+    </div>`
+  );
+});
 // Всегда показываем, что JS реально запустился
-document.body.insertAdjacentHTML(
-  "afterbegin",
-  "<div id='js-ok' style='padding:10px;background:#eaffea;border:1px solid #7ad67a;margin-bottom:8px;'>JS LOADED ✅</div>"
+document.body.insertAdjacentHTML("afterbegin",
+  "<div style='padding:10px;background:#eaffea;border:1px solid #7ad67a;margin-bottom:8px;'>APP.JS START ✅</div>"
 );
 
 // Элементы
