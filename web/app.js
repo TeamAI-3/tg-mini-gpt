@@ -15,7 +15,7 @@ function line(who, text){
   Пока ОСТАВЬ так.
   Мы заменим этот URL ПОСЛЕ ngrok.
 */
-const BACKEND_URL = "https://REPLACE_ME.ngrok-free.app";
+const BACKEND_URL = "https://tg-mini-gpt.onrender.com/";
 
 async function api(text){
   const r = await fetch(${BACKEND_URL}/chat, {
