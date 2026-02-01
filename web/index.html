@@ -13,23 +13,8 @@
     <button id="send">Send</button>
   </div>
 
-  <!-- ВАЖНО: это скрипт Telegram Mini App -->
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-
-<script>
-  window.mark = function (msg) {
-    document.body.insertAdjacentHTML(
-      "afterbegin",
-      "<div style='padding:10px;background:#eaffea;border:1px solid #7ad67a;margin-bottom:8px;'>" + msg + "</div>"
-    );
-  };
-  window.mark("INLINE OK ✅");
-</script>
-
-<script
-  src="https://tg-mini-gpt.vercel.app/app.js?v=9001"
-  onload="window.mark('SCRIPT TAG LOADED ✅')"
-  onerror="window.mark('SCRIPT TAG FAILED ❌')"
-></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- можно оставить полный URL, чтобы не было сюрпризов -->
+  <script src="https://tg-mini-gpt.vercel.app/app.js?v=1"></script>
 </body>
 </html>

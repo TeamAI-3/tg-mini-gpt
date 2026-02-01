@@ -1,71 +1,123 @@
-window.onerror = function (msg, src, line, col, err) {
-  document.body.insertAdjacentHTML(
-    "afterbegin",
-    `<div style="padding:10px;background:#ffecec;border:1px solid #ff7a7a;margin-bottom:8px;">
-      JS ERROR ❌<br>
-      ${msg}<br>
-      ${src ⠵⠟⠺⠟⠺⠵⠟⠵⠞⠺⠺⠞ ""}:${col ⠵⠵⠞⠺⠟⠞⠟⠞⠟⠞⠺⠵⠟⠟⠵⠵⠟⠟⠞⠞⠟⠺⠟⠟⠟⠵⠟⠟⠺⠟⠞⠺⠞⠟⠵⠵⠵⠟⠺⠵⠟⠺⠞⠟⠟⠞⠺⠞⠺⠵⠵⠺⠵⠞⠵⠞⠵⠺⠟⠺⠵⠵⠺⠵⠺⠞⠞⠟⠺⠟⠵⠞⠵⠺⠞⠞⠞⠞⠞⠵⠞⠟⠺⠵⠞⠺⠟⠞⠟⠞⠺⠵⠵⠞⠞⠺⠺⠺⠞⠵⠟⠟⠟⠺⠟⠟⠵⠺⠵⠞⠟⠺⠞⠟⠵⠞⠵⠺⠵⠟⠺⠵⠟⠵⠟⠞⠟⠟⠞⠟⠟⠺⠟⠞⠺⠺⠺⠟⠟⠵⠵⠺⠺⠺⠞⠟⠵⠺⠟⠞⠵⠟⠟⠵⠺⠞⠞⠞⠞⠺⠞⠵⠵⠟⠺⠺⠞⠞⠞⠵⠺⠟⠞⠟⠞⠺⠺⠺⠺⠺⠟⠞⠵⠵⠺⠺⠟⠵⠟⠞⠞⠺⠟⠺⠞⠞⠺⠵⠺⠞⠵⠵⠺⠵⠵⠟⠺⠺⠟⠵⠟⠵⠟⠞⠟⠺⠞⠺⠺⠞⠟⠟⠞⠺⠞⠟⠺⠞⠞⠵⠟⠺⠞⠺⠞⠞⠟⠟⠵⠟⠵⠺⠞⠞⠞⠞⠞⠵⠺⠺⠵⠟⠞⠞⠺⠟⠟⠵⠺⠟⠵⠵⠺⠞⠟⠺⠟⠞⠵⠵⠟⠞⠟⠵⠵⠞⠵⠟⠵⠵⠵⠞⠟⠵⠞⠟⠵⠵⠺⠞⠞⠺⠟⠟⠵⠺⠞⠵⠟⠞⠞ String(e.reason))) || "unknown"}
-    </div>`
-  );
-});
-// Всегда показываем, что JS реально запустился
-document.body.insertAdjacentHTML("afterbegin",
-  "<div style='padding:10px;background:#eaffea;border:1px solid #7ad67a;margin-bottom:8px;'>APP.JS START ✅</div>"
-);
-
-// Элементы
-const chat = document.getElementById("chat");
-const input = document.getElementById("msg");
-const send = document.getElementById("send");
-
-// Безопасно получаем Telegram WebApp (может быть undefined)
-const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-
-function line(who, text) {
-  const p = document.createElement("p");
-  p.textContent = ${who}: ${text};
-  chat.appendChild(p);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-// Пишем статус
-if (tg) {
-  try {
-    tg.ready();
-    tg.expand();
-    line("system", "Telegram WebApp найден ✅");
-  } catch (e) {
-    line("system", "Telegram WebApp есть, но ошибка: " + e.message);
+(function () {
+  // ===== UI helpers =====
+  function banner(text, bg, border) {
+    document.body.insertAdjacentHTML(
+      "afterbegin",
+      "<div style='padding:10px;margin-bottom:8px;background:" + bg +
+      ";border:1px solid " + border + ";font-family:Arial;'>" + text + "</div>"
+    );
   }
-} else {
-  line("system", "Telegram WebApp НЕ найден (это ок в браузере).");
-}
 
-// ВАЖНО: у тебя backend на Render
-const BACKEND_URL = "https://tg-mini-gpt.onrender.com";
+  function safeText(s) {
+    return String(s).replace(/[<>&]/g, (c) => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;" }[c]));
+  }
 
-async function api(text) {
-  // initData пустой в браузере — и это ок. В Telegram будет непустой.
-  const initData = tg ? (tg.initData ⠞⠵⠺⠺⠞⠵⠺⠞⠟⠞⠟⠺⠺⠺⠵⠵⠺⠺⠵⠟⠞⠵⠺⠟⠟⠟⠵⠺⠞⠵⠺⠟⠺⠵⠺⠟⠟⠺⠞⠵⠵⠞⠞⠟⠟⠟⠺⠺⠞⠺⠞⠵⠞⠵⠺⠺⠞⠟⠟⠞⠟⠵⠟⠞⠺⠞⠺⠞⠞⠟⠟⠟⠺⠺⠞⠟⠞⠞⠵⠟⠺⠞⠵⠞⠵⠟⠞⠵⠞⠺⠵⠵⠺⠞⠵⠵⠟⠵⠺⠵⠟⠟⠟⠵⠞⠺⠞⠵⠞⠟⠟⠞⠞⠟⠟⠞⠟⠵⠟⠺⠵⠞⠞⠞⠟⠵⠞⠺⠟⠟⠟⠺⠟⠵⠺⠵⠺⠵⠟⠟⠟⠟⠺⠺⠵⠺⠵⠞⠟⠞⠵⠟⠺⠟⠞⠞⠵⠟⠺⠺⠟⠺⠟⠺⠞⠟⠵⠞⠟⠵⠵⠞⠟⠟⠵⠺⠞⠟⠞⠟⠵⠞⠵⠺⠟⠵⠺⠟⠺⠟⠞⠞⠞⠺⠟⠵⠵⠟⠞⠟⠟⠟⠵⠵⠺⠵⠟⠞⠟⠟⠞⠟⠵⠟⠵⠺⠟⠵⠺⠞⠟⠟⠺⠞⠵⠞⠞⠵⠺⠞⠺⠵⠞⠵⠵⠵⠺⠺⠺⠵⠺⠞⠺⠵⠵⠵⠞⠺⠺⠟⠵⠞⠵⠟⠞⠞⠺⠵⠞⠺⠵⠺⠟⠵⠵⠵⠟⠞⠟⠟⠞⠺⠞⠞⠵⠞⠞ "Request failed");
-  return data.answer;
-}
+  // Ловим любые JS ошибки прямо на экран
+  window.onerror = function (msg, src, line, col) {
+    banner(
+      "JS ERROR ❌<br>" + safeText(msg) + "<br>" + safeText(src  "") + ":" + (line  "") + ":" + (col  ""),
+      "#ffecec",
+      "#ff7a7a"
+    );
+  };
 
-function onSend() {
-  const text = input.value.trim();
-  if (!text) return;
+  window.addEventListener("unhandledrejection", function (e) {
+    var reason = e && e.reason ? (e.reason.message  String(e.reason)) : "unknown";
+    banner("PROMISE ERROR ⚠️<br>" + safeText(reason), "#fff3cd", "#ffe08a");
+  });
 
-  line("you", text);
-  input.value = "";
+  // Маяк: app.js реально запустился
+  banner("APP.JS LOADED ✅", "#eaffea", "#7ad67a");
 
-  api(text)
-    .then(ans => line("gpt", ans))
-    .catch(e => line("system", "Ошибка: " + e.message));
-}
+  // ===== DOM =====
+  var chat = document.getElementById("chat");
+  var input = document.getElementById("msg");
+  var send = document.getElementById("send");
 
-// Надёжные события для Telegram WebView
-send.addEventListener("click", onSend);
-send.addEventListener("touchend", (e) => { e.preventDefault(); onSend(); });
-input.addEventListener("keydown", (e) => { if (e.key === "Enter") onSend(); });
+  if (!chat  !input  !send) {
+    banner("DOM ERROR ❌ Не найдены элементы #chat/#msg/#send", "#ffecec", "#ff7a7a");
+    return;
+  }
 
-// Для отладки: показать что кнопка вообще нажимается
-send.addEventListener("click", () => console.log("send clicked"));
+  function line(who, text) {
+    var p = document.createElement("p");
+    p.style.margin = "6px 0";
+    p.textContent = who + ": " + text;
+    chat.appendChild(p);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  // ===== Telegram WebApp =====
+  var tg = null;
+  if (window.Telegram && window.Telegram.WebApp) {
+    tg = window.Telegram.WebApp;
+    try {
+      tg.ready();
+      tg.expand();
+      line("system", "Telegram WebApp найден ✅");
+    } catch (e) {
+      line("system", "Telegram WebApp есть, но ошибка: " + e.message);
+    }
+  } else {
+    line("system", "Открыто не в Telegram (в браузере initData пустой).");
+  }
+
+  // ===== Backend =====
+  var BACKEND_URL = "https://tg-mini-gpt.onrender.com";
+
+  function api(text) {
+    var initData = tg ? (tg.initData  "") : "";
+    return fetch(BACKEND_URL + "/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: initData, text: text })
+    }).then(function (r) {
+      return r.json().then(function (data) {
+        if (!r.ok) {
+          var detail = (data && data.detail) ? data.detail : "Request failed";
+          throw new Error(detail);
+        }
+        return data.answer;
+      }).catch(function () {
+        // если ответ не json
+        if (!r.ok) throw new Error("Backend error");
+        throw new Error("Bad response");
+      });
+    });
+  }
+
+  function setEnabled(v) {
+    send.disabled = !v;
+    input.disabled = !v;
+    send.style.opacity = v ? "1" : "0.6";
+  }
+
+  function onSend() {
+    var text = (input.value  "").trim();
+    if (!text) return;
+
+    line("you", text);
+    input.value = "";
+    setEnabled(false);
+
+    api(text).then(function (ans) {
+      line("gpt", ans);
+      setEnabled(true);
+      input.focus();
+    }).catch(function (e) {
+      line("system", "Ошибка: " + (e && e.message ? e.message : String(e)));
+      setEnabled(true);
+      input.focus();
+    });
+  }
+
+  // Надёжные обработчики для Telegram WebView
+  send.addEventListener("click", onSend);
+  send.addEventListener("touchend", function (e) { e.preventDefault(); onSend(); });
+  input.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") onSend();
+  });
+
+  // Подсказка
+  line("system", "Готово. Пиши сообщение 👇");
+})();
