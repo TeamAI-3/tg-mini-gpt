@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppI
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 BOT_TOKEN = "8559402786:AAELAv_WAo80lLTwkvUvDGWa2SeG2injSHY"
-MINIAPP_URL = "https://tg-mini-gpt.vercel.app/?v=9999"  # например https://tg-mini-gpt.vercel.app
+MINIAPP_URL = "https://tg-mini-gpt.vercel.app/?v=7777"  # например https://tg-mini-gpt.vercel.app
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     kb = InlineKeyboardMarkup([[
