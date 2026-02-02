@@ -14,7 +14,7 @@
   <div id="chat" style="height:60vh; overflow:auto; border:1px solid #ccc; padding:10px; border-radius:10px;"></div>
 
   <div style="display:flex; gap:8px; margin-top:10px;">
-    <input id="msg" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:10px;" placeholder="Напиши сообщение..." />
+      <label for="msg"></label><input id="msg" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:10px;" placeholder="Напиши сообщение..." />
     <button id="send" style="padding:10px 16px; border:1px solid #ccc; border-radius:10px;">Send</button>
   </div>
 
@@ -26,7 +26,7 @@
 
     function line(who, text) {
       const p = document.createElement("p");
-      p.textContent = ${who}: ${text};
+      p.textContent = `${who}: ${text}`;
       p.style.margin = "6px 0";
       chat.appendChild(p);
       chat.scrollTop = chat.scrollHeight;
