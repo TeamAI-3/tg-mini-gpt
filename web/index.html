@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -9,12 +9,16 @@
 <body style="margin:0; padding:16px; font-family: Arial, sans-serif; background:#0f172a; color:#e5e7eb;">
   <div id="top"></div>
 
-  <div id="chat" style="height:60vh; overflow:auto; border:1px solid #334155; padding:12px; background:#111827;"></div>
+  <div id="chat"
+       style="height:60vh; overflow:auto; border:1px solid #334155; padding:12px; background:#111827; border-radius:10px;">
+  </div>
 
   <div style="display:flex; gap:8px; margin-top:10px;">
-    <input id="msg" style="flex:1; padding:10px; border:1px solid #334155; background:#0b1220; color:#e5e7eb;"
+    <input id="msg"
+           style="flex:1; padding:10px; border:1px solid #334155; background:#0b1220; color:#e5e7eb; border-radius:10px;"
            placeholder="Напиши сообщение..." />
-    <button id="send" style="padding:10px 16px; border:1px solid #334155; background:#111827; color:#e5e7eb;">
+    <button id="send"
+            style="padding:10px 16px; border:1px solid #334155; background:#111827; color:#e5e7eb; border-radius:10px;">
       Send
     </button>
   </div>
@@ -24,6 +28,7 @@
 
   <script>
     (function () {
+      // ===== helpers =====
       function banner(html, bg, border) {
         var top = document.getElementById("top");
         var div = document.createElement("div");
@@ -31,6 +36,7 @@
         div.style.marginBottom = "8px";
         div.style.background = bg;
         div.style.border = "1px solid " + border;
+        div.style.borderRadius = "10px";
         div.innerHTML = html;
         top.insertBefore(div, top.firstChild);
       }
@@ -44,23 +50,27 @@
         chat.scrollTop = chat.scrollHeight;
       }
 
-      // ловим любые ошибки JS прямо на экран
-      window.onerror = function (msg, src, lineNo, colNo) {
-        banner("JS ERROR ❌<br>" + String(msg) + "<br>" + String(src  "") + ":" + (lineNo"") + ":" + (colNo||""),
-               "#3f1d1d", "#ef4444");
-      };
-
+      // ===== show that JS is running (если этого нет — ты открыл не тот деплой) =====
       banner("INDEX INLINE JS START ✅", "#12301b", "#22c55e");
 
+      // ===== catch JS errors on screen =====
+      window.onerror = function (msg, src, lineNo, colNo) {
+        banner(
+          "JS ERROR ❌<br>" + String(msg) + "<br>" + String(src  "") + ":" + (lineNo"") + ":" + (colNo||""),
+          "#3f1d1d",
+          "#ef4444"
+        );
+      };
+
+      // ===== DOM =====
       var input = document.getElementById("msg");
       var send  = document.getElementById("send");
-
       if (!input  !send) {
         banner("DOM ERROR ❌ нет #msg или #send", "#3f1d1d", "#ef4444");
         return;
       }
 
-      // Telegram WebApp
+      // ===== Telegram =====
       var tg = null;
       if (window.Telegram && window.Telegram.WebApp) {
         tg = window.Telegram.WebApp;
@@ -75,7 +85,7 @@
         line("system", "Открыто не в Telegram (в браузере это ок).");
       }
 
-      // Backend
+      // ===== Backend URL (ТВОЙ RENDER) =====
       var BACKEND_URL = "https://tg-mini-gpt.onrender.com";
 
       function setEnabled(v) {
@@ -84,7 +94,7 @@
         send.style.opacity = v ? "1" : "0.6";
       }
 
-      // максимально совместимый запрос: XMLHttpRequest (без fetch/async)
+      // ===== request (совместимый способ — XMLHttpRequest) =====
       function postChat(text, cbOk, cbErr) {
         var xhr = new XMLHttpRequest();
         xhr.open("POST", BACKEND_URL + "/chat", true);
@@ -107,7 +117,6 @@
         var initData = tg ? (tg.initData  "") : "";
         xhr.send(JSON.stringify({ initData: initData, text: text }));
       }
-
       function onSend() {
         var text = (input.value || "").trim();
         if (!text) return;
