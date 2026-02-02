@@ -26,9 +26,9 @@
     <button id="send" style="padding:10px 16px; border:1px solid #ccc; border-radius:10px;">Send</button>
   </div>
 
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+ <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-  const BACKEND = "https://tg-mini-gpt-backend.onrender.com"; // Render ✅
+  const BACKEND = "https://tg-mini-gpt-backend.onrender.com";
 
   const chat = document.getElementById("chat");
   const input = document.getElementById("msg");
@@ -36,21 +36,20 @@
 
   function line(who, text) {
     const p = document.createElement("p");
-    p.textContent = ${who}: ${text};
+    p.textContent = `${who}: ${text}`;   // ✅ исправлено
     p.style.margin = "6px 0";
     chat.appendChild(p);
     chat.scrollTop = chat.scrollHeight;
   }
 
-  // Защита от "ничего не появляется"
-  if (!chat  !input  !send) {
+  // защита
+  if (!chat || !input || !send) {
     document.body.insertAdjacentHTML("beforeend",
       "<div style='border:3px solid red; padding:10px; border-radius:10px;'>ОШИБКА: нет chat/msg/send в HTML</div>"
     );
     throw new Error("Missing elements chat/msg/send");
   }
 
-  // Telegram init
   const tg = window.Telegram?.WebApp;
   if (tg) { tg.ready(); tg.expand(); line("system", "Telegram WebApp ✅"); }
   else { line("system", "Открыто не в Telegram"); }
@@ -79,13 +78,13 @@
       const r = await fetch(BACKEND + "/chat", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text: text })
       });
 
       const j = await r.json();
-      if (!r.ok) throw new Error(j.detail  ("HTTP " + r.status));
+      if (!r.ok) throw new Error(j.detail || ("HTTP " + r.status));  // ✅ исправлено
 
-      line("server", j.answer  "(пусто)");
+      line("server", j.answer || "(пусто)"); // ✅ исправлено
     } catch (e) {
       line("error", e.message);
     } finally {
