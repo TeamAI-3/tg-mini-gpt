@@ -1,0 +1,17 @@
+# IDE
+.idea/
+
+# Python
+pycache/
+*.pyc
+.venv/
+venv/
+
+# Env files (секреты)
+.env
+backend/.env
+bot/.env
+
+# OS
+.DS_Store
+Thumbs.db
