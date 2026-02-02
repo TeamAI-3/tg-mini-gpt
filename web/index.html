@@ -1,31 +1,85 @@
 <!doctype html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Mini App</title>
+  <title>MiniGPT</title>
 </head>
-<body style="font-family: Arial, sans-serif; padding: 16px;">
-  <h2>✅ Mini App работает</h2>
-  <p>Если ты видишь это внутри Telegram — этап 2 пройден.</p>
+<body style="margin:0; padding:16px; font-family: Arial, sans-serif;">
+  <div style="padding:10px;border:1px solid #22c55e;margin-bottom:10px;border-radius:10px;">
+    ✅ Mini App: backend ping + chat
+  </div>
+
+  <div id="chat" style="height:60vh; overflow:auto; border:1px solid #ccc; padding:10px; border-radius:10px;"></div>
+
+  <div style="display:flex; gap:8px; margin-top:10px;">
+    <input id="msg" style="flex:1; padding:10px; border:1px solid #ccc; border-radius:10px;" placeholder="Напиши сообщение..." />
+    <button id="send" style="padding:10px 16px; border:1px solid #ccc; border-radius:10px;">Send</button>
+  </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    document.body.insertAdjacentHTML("beforeend",
-      "<p><b>INLINE JS ✅</b></p>"
-    );
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("msg");
+    const send  = document.getElementById("send");
 
-    if (window.Telegram && window.Telegram.WebApp) {
-      Telegram.WebApp.ready();
-      Telegram.WebApp.expand();
-      document.body.insertAdjacentHTML("beforeend",
-        "<p><b>Telegram WebApp найден ✅</b></p>"
-      );
-    } else {
-      document.body.insertAdjacentHTML("beforeend",
-        "<p><b>Открыто не в Telegram</b></p>"
-      );
+    function line(who, text) {
+      const p = document.createElement("p");
+      p.textContent = ${who}: ${text};
+      p.style.margin = "6px 0";
+      chat.appendChild(p);
+      chat.scrollTop = chat.scrollHeight;
     }
+
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); line("system", "Telegram WebApp ✅"); }
+    else { line("system", "Открыто в браузере"); }
+
+    // ⚠️ ВСТАВЬ СЮДА СВОЙ Render URL:
+    const BACKEND = "https://tg-mini-gpt-backend.onrender.com";
+
+    async function ping() {
+      try {
+        const r = await fetch(BACKEND + "/ping");
+        const j = await r.json();
+        line("ping", JSON.stringify(j));
+      } catch (e) {
+        line("ping-error", e.message);
+      }
+    }
+
+    async function onSend() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      line("you", text);
+      input.value = "";
+      send.disabled = true;
+
+      try {
+        const r = await fetch(BACKEND + "/chat", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({ text })
+        });
+
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.detail  ("HTTP " + r.status));
+
+        line("server", j.answer  "(пусто)");
+      } catch (e) {
+        line("error", e.message);
+      } finally {
+        send.disabled = false;
+        input.focus();
+      }
+    }
+
+    send.addEventListener("click", onSend);
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") onSend(); });
+
+    line("system", "Готово. Пиши сообщение 👇");
+    ping();
   </script>
 </body>
 </html>
