@@ -6,6 +6,7 @@
   <title>MiniGPT</title>
 </head>
 <body style="margin:0; padding:16px; font-family: Arial, sans-serif;">
+
   <div style="padding:10px;border:1px solid #22c55e;margin-bottom:10px;border-radius:10px;">
     ✅ Mini App: backend ping + chat
   </div>
@@ -31,12 +32,22 @@
       chat.scrollTop = chat.scrollHeight;
     }
 
-    const tg = window.Telegram?.WebApp;
-    if (tg) { tg.ready(); tg.expand(); line("system", "Telegram WebApp ✅"); }
-    else { line("system", "Открыто в браузере"); }
+    // 1) JS точно запустился
+    line("debug", "JS запустился ✅");
 
-    // ⚠️ ВСТАВЬ СЮДА СВОЙ Render URL:
-    const BACKEND = "https://tg-mini-gpt-backend.onrender.com";
+    // 2) Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      line("system", "Telegram WebApp ✅");
+    } else {
+      line("system", "Открыто не в Telegram");
+    }
+
+    // ⚠️ ВСТАВЬ СЮДА СВОЙ Render URL (без слэша в конце)
+    const BACKEND = "https://ТВОЙ-СЕРВИС.onrender.com";
+    line("debug", "BACKEND=" + BACKEND);
 
     async function ping() {
       try {
