@@ -1,70 +1,74 @@
 import os
-import asyncio
+import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
 from openai import OpenAI
 
-# Модель можно переопределить в Render env: OPENAI_MODEL
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.2")
+# (опционально) чтобы локально читать .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
 
-# OpenAI SDK сам читает ключ из переменной окружения OPENAI_API_KEY :contentReference[oaicite:1]{index=1}
-client = OpenAI()
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger("tg-mini-gpt")
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip()
+CORS_ORIGINS_RAW = os.getenv("CORS_ORIGINS", "*").strip()
+
+def parse_origins(raw: str):
+    # Можно поставить "*" на время разработки
+    if not raw or raw == "*":
+        return ["*"], False
+    origins = [o.strip() for o in raw.split(",") if o.strip()]
+    return origins, True
+
+origins, allow_credentials = parse_origins(CORS_ORIGINS_RAW)
 
 app = FastAPI()
-
-# Разрешаем запросы с фронта (Vercel)
-# Можно добавить ещё домены через Render env CORS_ORIGINS (через запятую)
-default_origins = [
-    "https://tg-mini-gpt.vercel.app",
-]
-cors_env = os.getenv("CORS_ORIGINS", "").strip()
-origins = [o.strip() for o in cors_env.split(",") if o.strip()] or default_origins
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-class ChatRequest(BaseModel):
-    text: str
+client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
-class ChatResponse(BaseModel):
-    answer: str
+class ChatIn(BaseModel):
+    text: str
 
 @app.get("/ping")
 def ping():
-    return {"ok": True, "service": "tg-mini-gpt-backend"}
+    return {"pong": True}
 
-@app.post("/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest):
-    text = (req.text or "").strip()
+@app.post("/chat")
+def chat(payload: ChatIn):
+    text = (payload.text or "").strip()
     if not text:
-        raise HTTPException(status_code=400, detail="text is empty")
+        raise HTTPException(status_code=422, detail="text is empty")
 
-    instructions = (
-        "Ты — помощник внутри Telegram Mini App. "
-        "Отвечай по-русски, коротко и по делу. "
-        "Если вопрос непонятен — попроси уточнить."
-    )
+    if client is None:
+        raise HTTPException(status_code=500, detail="OPENAI_API_KEY is missing")
 
     try:
-        # Responses API — рекомендуемый вариант для новых проектов :contentReference[oaicite:2]{index=2}
-        resp = await asyncio.to_thread(
-            client.responses.create,
+        # Responses API
+        resp = client.responses.create(
             model=OPENAI_MODEL,
-            instructions=instructions,
             input=text,
         )
-        answer = (resp.output_text or "").strip()
-        if not answer:
-            answer = "(пустой ответ)"
-        return ChatResponse(answer=answer)
+        answer = (getattr(resp, "output_text", "") or "").strip()
+        return {"answer": answer or "(пустой ответ)"}
 
     except Exception as e:
-        # не светим детали наружу, но понятно что упало
-        raise HTTPException(status_code=500, detail=f"OpenAI error: {type(e).name}")
+        log.exception("OpenAI call failed")
+        # ВАЖНО: __name__, а не .name
+        raise HTTPException(
+            status_code=500,
+            detail=f"OpenAI error: {type(e).__name__}: {str(e)}"
+        )
