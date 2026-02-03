@@ -65,6 +65,23 @@ async def chat(req: ChatRequest):
             answer = "(пустой ответ)"
         return ChatResponse(answer=answer)
 
+    import traceback
+
+    from fastapi import HTTPException
+
+
+    # ...
+
     except Exception as e:
-        # не светим детали наружу, но понятно что упало
-        raise HTTPException(status_code=500, detail=f"OpenAI error: {type(e).name}")
+
+    print("OPENAI ERROR:", repr(e))
+
+    traceback.print_exc()
+
+    raise HTTPException(
+
+        status_code=500,
+
+        detail=f"OpenAI error: {type(e).__name__}: {e}"
+
+    )
