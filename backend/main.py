@@ -65,10 +65,15 @@ def chat(payload: ChatIn):
         answer = (getattr(resp, "output_text", "") or "").strip()
         return {"answer": answer or "(пустой ответ)"}
 
+
     except Exception as e:
-        log.exception("OpenAI call failed")
-        # ВАЖНО: __name__, а не .name
-        raise HTTPException(
-            status_code=500,
-            detail=f"OpenAI error: {type(e).__name__}: {str(e)}"
-        )
+        err_msg = str(e)
+        log.exception("OpenAI error: %s", err_msg)
+        # если квота/биллинг закончились — отдаем понятное сообщение
+        if "insufficient_quota" in err_msg or "quota" in err_msg:
+            raise HTTPException(
+                status_code=402,
+                detail="OpenAI: закончилась квота/нет активного биллинга. Пополни баланс или включи оплату."
+            )
+        raise HTTPException(status_code=500, detail=f"OpenAI error: {err_msg}")
+
